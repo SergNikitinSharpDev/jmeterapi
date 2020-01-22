@@ -1,7 +1,21 @@
+const newman = require('newman');
+const fs = require('fs');
+var multer  = require('multer')
+
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, `${appRoot}/newman/settings`)
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.fieldname)
+  }
+})
+var upload = multer(({ storage: storage }))
+
 module.exports = function(app) {
 
 	app.get('/', (req, res) => {
-		res.sendFile('/home/ubuntu/jmeterapi/index.html');
+		res.sendFile(`${appRoot}/app/index.html`);
 	  });
 
 	app.get('/ok', (req, res) => {
@@ -14,14 +28,14 @@ module.exports = function(app) {
 		var duration = 120;
 
 		var timestamp = + new Date();
-		var execTest = `/home/ubuntu/apache-jmeter-5.1.1/bin/jmeter -n -t /home/ubuntu/jmx_scenarios/AutomatedTest.jmx   -JReportName=/home/ubuntu/jmeterapi/csv/r${timestamp} -JUsersPool=/home/ubuntu/jmx_scenarios/users_pool.csv -JThreads=${threads} -JRampUp=${ramp} -JDuration=${duration}`;
-		var genReport = `/home/ubuntu/apache-jmeter-5.1.1/bin/jmeter -g /home/ubuntu/jmeterapi/csv/r${timestamp}.csv -o /home/ubuntu/jmeterapi/reports/r${timestamp}`;
+		var execTest = `${jmeterPath} -n -t ${jmeterScenarios}/AutomatedTest.jmx   -JReportName=${appRoot}/csv/r${timestamp} -JUsersPool=${jmeterScenarios}/users_pool.csv -JThreads=${threads} -JRampUp=${ramp} -JDuration=${duration}`;
+		var genReport = `${jmeterPath} -g ${appRoot}/csv/r${timestamp}.csv -o ${appRoot}/reports/r${timestamp}`;
 		var shell = require('./shellHelper');
 		shell.series([
 			execTest, genReport
 		], function(err){
 		});
-		res.send(`Report will be ready within ${duration} seconds. Check at http://:8001/r${timestamp}/index.html`)
+		res.send(`Report will be ready within ${duration} seconds. Check at ${serverExternalURL}/r${timestamp}/index.html`)
 	  });
 
 	app.post('/report', (req, res) => {
@@ -31,26 +45,82 @@ module.exports = function(app) {
 		var duration = req.body.duration || 120;
 
 		var timestamp = + new Date();
-		var execTest = `/home/ubuntu/apache-jmeter-5.1.1/bin/jmeter -n -t /home/ubuntu/jmx_scenarios/AutomatedTest.jmx   -JReportName=/home/ubuntu/jmeterapi/csv/r${timestamp} -JUsersPool=/home/ubuntu/jmx_scenarios/users_pool.csv -JThreads=${threads} -JRampUp=${ramp} -JDuration=${duration}`;
-		var genReport = `/home/ubuntu/apache-jmeter-5.1.1/bin/jmeter -g /home/ubuntu/jmeterapi/csv/r${timestamp}.csv -o /home/ubuntu/jmeterapi/reports/r${timestamp}`;
+		var execTest = `${jmeterPath} -n -t ${jmeterScenarios}/AutomatedTest.jmx   -JReportName=${appRoot}/csv/r${timestamp} -JUsersPool=${jmeterScenarios}/users_pool.csv -JThreads=${threads} -JRampUp=${ramp} -JDuration=${duration}`;
+		var genReport = `${jmeterPath} -g ${appRoot}/csv/r${timestamp}.csv -o ${appRoot}/reports/r${timestamp}`;
 		var shell = require('./shellHelper');
 		shell.series([
 			execTest, genReport
 		], function(err){
 		});
-		res.send(`Report will be ready within ${duration} seconds. Check at http://:8001/r${timestamp}/index.html`)
+		res.send(`Report will be ready within ${duration} seconds. Check at ${serverExternalURL}/r${timestamp}/index.html`)
 	  });
 
 	app.get('/reports/list', (req, res) => {
 		const { readdirSync, statSync } = require('fs');
 		const { join } = require('path');
 		const dirs = p => readdirSync(p).filter(f => statSync(join(p, f)).isDirectory());
-		var dirsList = dirs(`/home/ubuntu/jmeterapi/reports`);
+		var dirsList = dirs(`${appRoot}/reports`);
 		for (index = 0; index < dirsList.length; ++index) {
-			dirsList[index] = `http://:8001/${dirsList[index]}/index.html`;
+			dirsList[index] = `${serverExternalURL}/${dirsList[index]}/index.html`;
 		}
 		res.send(dirsList);
 	});
 
+	app.get('/newman', (req, res) => {
+		res.sendFile(`${appRoot}/newman/reports/htmlResults.html`);
+	  });
+	  
+	app.get('/newman/report', (req, res) => {
+		var report = `${appRoot}/newman/reports/htmlResults.html`;
+		if (fs.existsSync(report)) {
+			console.log(`clearing ${report}`);
+			fs.unlinkSync(report);
+		}
+		var collectionName = req.query.colleciton || 'Fx1.postman_collection.json';
+		var environment = req.query.env || 'Test.postman_environment.json';
+		
+		console.log(`$newman run ${appRoot}/newman/settings/${collectionName} -e ${appRoot}/newman/settings/${environment} -r html`);
+		newman.run({
+			collection: require(`${appRoot}/newman/settings/${collectionName}`),
+			environment: require(`${appRoot}/newman/settings/${environment}`),
+			insecure: true,
+			reporters: 'html',
+			reporter: {
+				html: {
+					export: `${appRoot}/newman/reports/htmlResults.html`
+					//,template: './customTemplate.hbs' // optional, this will be picked up relative to the directory that Newman runs in.
+				}
+			}
+		}, function (err) {
+			if (err) { 
+					console.log(`Error: ${err}`);
+					throw err; 
+				}
+			console.log('Collection run success');
+			res.sendFile(`${appRoot}/newman/reports/htmlResults.html`)
+		});
+	  });
+	  
+	
+	app.get('/newman/upload', (req, res) => {
+		res.sendFile(`${appRoot}/app/newman_upload.html`);
+	  });
+	
+	var cpUpload = upload.fields([{ name: 'collection', maxCount: 1 }, { name: 'environment', maxCount: 1 }])  
+	app.post('/newman/upload/all', (req, res) => {
+		var collectionJson = JSON.parse(req.body.collectionJson);
+		res.send(`${appRoot}/newman/settings/Fx1.postman_collection.json was updated`)
+	});
+	  
+	app.post('/newman/collection', (req, res) => {
+		var collectionJson = JSON.parse(req.body.collectionJson);
+		res.send(`${appRoot}/newman/settings/Fx1.postman_collection.json was updated`)
+	  });
+	  
+	app.post('/newman/environment', (req, res) => {
+		var key = req.body.key;
+		var environmentJson = JSON.parse(req.body.environmentJson);
+		res.send(`${appRoot}/newman/settings/Fx1.postman_collection.json was updated`)
+	  });
 };
 

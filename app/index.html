@@ -1,0 +1,22 @@
+<html>
+<body>
+<p><b>Available endpoints:</b></p> 
+<p>JMeter</p>
+<ul>
+<li>GET /ok : returns 200</li>
+<li>GET /report : perform jmeter test with defaults (threads:100, ramp:60, duration:120) and generate html report</li>
+<li>POST /report : same as GET, accepts following params in body - threads, ramp, duration</li>
+<li>GET /reports/list : list existing reports</li>
+</ul>
+<p></p>
+<p>Newman CLI</p>
+<ul>
+<li>GET /newman : get previous html report</li>
+<li>GET /newman/report?env=LT.postman_environment.json&colleciton=Fx1.postman_collection.json : runs newman CLI-generated report, based on postman tests collection for specified environment</li>
+<li>GET /newman/upload : simple upload form for newman collection and environment</li>
+<!-- <li>POST /newman/collection : update postman tests collection, accepts body { "collectionJson" : "" }</li> -->
+<!-- <li>POST /newman/environment : update postman environment file, accepts body { "key": "", "environmentJson" : "" }</li> -->
+</ul>
+</body>
+</html>
+
