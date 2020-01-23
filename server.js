@@ -12,23 +12,23 @@ global.serverExternalURL = `http://:${port}`;
 
 var fs = require('fs');
 
-var dir = `${appRoot}/newman`;
+var dir = `${__dirname}/newman`;
 if (!fs.existsSync(dir)){
     fs.mkdirSync(dir);
 }
-dir = `${appRoot}/newman/settings`;
+dir = `${__dirname}/newman/settings`;
 if (!fs.existsSync(dir)){
     fs.mkdirSync(dir);
 }
-dir = `${appRoot}/newman/reports`;
+dir = `${__dirname}/newman/reports`;
 if (!fs.existsSync(dir)){
     fs.mkdirSync(dir);
 }
-dir = `${appRoot}/reports`;
+dir = `${__dirname}/reports`;
 if (!fs.existsSync(dir)){
     fs.mkdirSync(dir);
 }
-dir = `${appRoot}/csv`;
+dir = `${__dirname}/csv`;
 if (!fs.existsSync(dir)){
     fs.mkdirSync(dir);
 }
