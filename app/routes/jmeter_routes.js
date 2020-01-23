@@ -111,7 +111,12 @@ module.exports = function(app) {
 		res.sendFile(`${appRoot}/app/newman_upload.html`);
 	  });
 	
-	var cpUpload = upload.fields([{ name: 'collection', maxCount: 10 }])  
+	var cpUpload = upload.fields([{ name: 'collection', maxCount: 10 }], function (err) {
+		if (err instanceof multer.MulterError) {
+		  console.log('MulterError',err)
+		} else if (err) {
+		  console.log('Unknown error',err)
+    }  
 	app.post('/newman/upload/all', cpUpload, (req, res) => {
 		console.log(req.files)
 		var result = req.files.collection.map(c => " " + c.originalname );
