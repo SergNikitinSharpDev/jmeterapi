@@ -114,9 +114,9 @@ module.exports = function(app) {
 	  });
 	
 	app.post('/newman/upload/all', upload.array('collection'), function (req, res, next) {
-		//console.log(req.files)
-		//var result = req.files.map(c => " " + c.originalname );
-		res.send(`Files uploaded: `);
+		console.log(req.files)
+		var result = req.files.map(c => " " + c.originalname );
+		res.send(`Files uploaded: ${result}`);
 	});
 	
 	app.get('/newman/settings/list', (req, res) => {
