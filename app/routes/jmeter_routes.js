@@ -8,7 +8,7 @@ var storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
 	console.log(file)
-    cb(null, file.originalname.split('.')[0]+'.json')
+    cb(null, file.originalname+'.newman')
   }
 })
 var upload = multer(({ 
