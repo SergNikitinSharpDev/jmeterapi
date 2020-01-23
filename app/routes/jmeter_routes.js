@@ -115,11 +115,11 @@ module.exports = function(app) {
 	  });
 	
 	app.post('/newman/upload/all', upload.array('collection'), function (req, res, next) {
-		console.log(req.files)
 		var files = req.files.map(c => " " + c.originalname );
+		console.log(files)
 		
 		files.forEach(function (item, index) {
-		  console.log(item, index);
+		  console.log('iterate',item, index);
 			fs.rename(`${appRoot}/newman/settings/${item}.json.newman`, `${appRoot}/newman/settings/${item}.json`, function(err) {
 				if ( err ) console.log('ERROR: ' + err);
 			});
