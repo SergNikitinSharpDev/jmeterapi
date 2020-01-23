@@ -7,7 +7,6 @@ var storage = multer.diskStorage({
     cb(null, `${appRoot}/newman/settings`)
   },
   filename: function (req, file, cb) {
-	console.log(file)
     cb(null, file.originalname+'.newman')
   }
 })
@@ -117,8 +116,16 @@ module.exports = function(app) {
 	
 	app.post('/newman/upload/all', upload.array('collection'), function (req, res, next) {
 		console.log(req.files)
-		var result = req.files.map(c => " " + c.originalname );
-		res.send(`Files uploaded: ${result}`);
+		var files = req.files.map(c => " " + c.originalname );
+		
+		files.forEach(function (item, index) {
+		  console.log(item, index);
+			fs.rename(`${appRoot}/newman/settings/${item}.json.newman`, `${appRoot}/newman/settings/${item}.json`, function(err) {
+				if ( err ) console.log('ERROR: ' + err);
+			});
+		});
+		
+		res.send(`Files uploaded: ${files}`);
 	});
 	
 	app.get('/newman/settings/list', (req, res) => {
