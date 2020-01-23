@@ -11,7 +11,8 @@ var storage = multer.diskStorage({
   }
 })
 var upload = multer(({ 
-	storage: storage
+	storage: storage,
+	limits:{fileSize:52428800, fieldSize: 52428800} 
 	}))
 
 module.exports = function(app) {
