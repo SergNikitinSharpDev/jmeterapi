@@ -3,6 +3,8 @@ const bodyParser     = require('body-parser');
 const app            = express();
 const port = 8001;
 
+app.use(bodyParser.json({limit: '10mb'})) // and add this
+
 //set global app root path
 var path = require('path');
 global.appRoot = path.resolve(__dirname);
