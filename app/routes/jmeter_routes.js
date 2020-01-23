@@ -10,7 +10,10 @@ var storage = multer.diskStorage({
     cb(null, file.originalname)
   }
 })
-var upload = multer(({ storage: storage }))
+var upload = multer(({ 
+	storage: storage,
+	onError : function(err, next) { console.log('error', err); next(err); } 
+	}))
 
 module.exports = function(app) {
 
