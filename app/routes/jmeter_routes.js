@@ -7,13 +7,24 @@ var storage = multer.diskStorage({
     cb(null, `${appRoot}/newman/settings`)
   },
   filename: function (req, file, cb) {
-    cb(null, file.fieldname)
+    cb(null, file.originalname)
   }
 })
 var upload = multer(({ storage: storage }))
 
 module.exports = function(app) {
 
+	function showDirContents(relativePath){
+		const { readdirSync, statSync } = require('fs');
+		const { join } = require('path');
+		const dirs = p => readdirSync(p).filter(f => statSync(join(p, f)).isDirectory());
+		var dirsList = dirs(`${appRoot}/${relativePath}`);
+		for (index = 0; index < dirsList.length; ++index) {
+			dirsList[index] = `${serverExternalURL}/${dirsList[index]}/index.html`;
+		}
+		return dirsList;
+	}
+	
 	app.get('/', (req, res) => {
 		res.sendFile(`${appRoot}/app/index.html`);
 	  });
@@ -56,13 +67,7 @@ module.exports = function(app) {
 	  });
 
 	app.get('/reports/list', (req, res) => {
-		const { readdirSync, statSync } = require('fs');
-		const { join } = require('path');
-		const dirs = p => readdirSync(p).filter(f => statSync(join(p, f)).isDirectory());
-		var dirsList = dirs(`${appRoot}/reports`);
-		for (index = 0; index < dirsList.length; ++index) {
-			dirsList[index] = `${serverExternalURL}/${dirsList[index]}/index.html`;
-		}
+		var dirsList = showDirContents("reports");
 		res.send(dirsList);
 	});
 
@@ -107,10 +112,14 @@ module.exports = function(app) {
 	  });
 	
 	var cpUpload = upload.fields([{ name: 'collection', maxCount: 1 }, { name: 'environment', maxCount: 1 }])  
-	app.post('/newman/upload/all', (req, res) => {
-		var collectionJson = JSON.parse(req.body.collectionJson);
-		res.send(`${appRoot}/newman/settings/Fx1.postman_collection.json was updated`)
+	app.post('/newman/upload/all', cpUpload, (req, res) => {
+		res.send(`Files uploaded: ${req.files}`);
 	});
+	
+	app.get('/newman/settings/list', (req, res) => {
+		var dirsList = showDirContents("newman/settings");
+		res.send(`Contents of newman/settings: ${dirsList}`);
+	  });
 	  
 	app.post('/newman/collection', (req, res) => {
 		var collectionJson = JSON.parse(req.body.collectionJson);
