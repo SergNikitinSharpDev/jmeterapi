@@ -111,9 +111,11 @@ module.exports = function(app) {
 		res.sendFile(`${appRoot}/app/newman_upload.html`);
 	  });
 	
-	var cpUpload = upload.fields([{ name: 'collection', maxCount: 1 }, { name: 'environment', maxCount: 1 }])  
+	var cpUpload = upload.fields([{ name: 'collection', maxCount: 10 }])  
 	app.post('/newman/upload/all', cpUpload, (req, res) => {
-		res.send(`Files uploaded: ${req.files}`);
+		console.log(req.files)
+		var result = req.files.collection.map(c => " " + c.originalname );
+		res.send(`Files uploaded: ${result}`);
 	});
 	
 	app.get('/newman/settings/list', (req, res) => {
