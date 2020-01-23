@@ -10,6 +10,29 @@ global.jmeterPath = '/home/ubuntu/apache-jmeter-5.1.1/bin/jmeter';
 global.jmeterScenarios = '/home/ubuntu/jmx_scenarios';
 global.serverExternalURL = `http://:${port}`;
 
+var fs = require('fs');
+
+var dir = `${appRoot}/newman`;
+if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+}
+dir = `${appRoot}/newman/settings`;
+if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+}
+dir = `${appRoot}/newman/reports`;
+if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+}
+dir = `${appRoot}/reports`;
+if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+}
+dir = `${appRoot}/csv`;
+if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+}
+
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(express.static('reports'))
