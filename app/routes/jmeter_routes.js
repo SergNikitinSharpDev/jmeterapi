@@ -135,10 +135,9 @@ module.exports = function(app) {
 		res.sendFile(`${appRoot}/app/newman_upload.html`);
 	  });
 	
-	var cpUpload = upload.fields([{ name: 'collection', maxCount: 10 }])  
-	app.post('/newman/upload/all', cpUpload, (req, res) => {
+	app.post('/newman/upload/all', upload.array('collection'), function (req, res, next) {
 		console.log(req.files)
-		var result = req.files.collection.map(c => " " + c.originalname );
+		var result = req.files.map(c => " " + c.originalname );
 		res.send(`Files uploaded: ${result}`);
 	});
 	
