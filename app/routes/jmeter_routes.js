@@ -1,6 +1,6 @@
 const newman = require('newman');
 const fs = require('fs');
-var multer  = require('multer')
+var multer  = require('multer');
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -11,29 +11,7 @@ var storage = multer.diskStorage({
   }
 })
 var upload = multer(({ 
-	storage: storage,
-	onFileUploadStart: function(file) {
-	console.log('Starting ' + file.fieldname);
-	},
-	onFileUploadData: function(file, data) {
-	console.log('Got a chunk of data!');
-	},
-	onFileUploadComplete: function(file) {
-	console.log('Completed file!');
-	},
-	onParseStart: function() {
-	console.log('Starting to parse request!');
-	},
-	onParseEnd: function(req, next) {
-	console.log('Done parsing!');
-	next();
-	},
-	onError: function(e, next) {
-	if (e) {
-	  console.log(e.stack);
-	}
-	next();
-	}
+	storage: storage
 	}))
 
 module.exports = function(app) {
@@ -136,9 +114,9 @@ module.exports = function(app) {
 	  });
 	
 	app.post('/newman/upload/all', upload.array('collection'), function (req, res, next) {
-		console.log(req.files)
-		var result = req.files.map(c => " " + c.originalname );
-		res.send(`Files uploaded: ${result}`);
+		//console.log(req.files)
+		//var result = req.files.map(c => " " + c.originalname );
+		res.send(`Files uploaded: `);
 	});
 	
 	app.get('/newman/settings/list', (req, res) => {
