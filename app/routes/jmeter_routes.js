@@ -12,7 +12,28 @@ var storage = multer.diskStorage({
 })
 var upload = multer(({ 
 	storage: storage,
-	onError : function(err, next) { console.log('error', err); next(err); } 
+	onFileUploadStart: function(file) {
+	console.log('Starting ' + file.fieldname);
+	},
+	onFileUploadData: function(file, data) {
+	console.log('Got a chunk of data!');
+	},
+	onFileUploadComplete: function(file) {
+	console.log('Completed file!');
+	},
+	onParseStart: function() {
+	console.log('Starting to parse request!');
+	},
+	onParseEnd: function(req, next) {
+	console.log('Done parsing!');
+	next();
+	},
+	onError: function(e, next) {
+	if (e) {
+	  console.log(e.stack);
+	}
+	next();
+	}
 	}))
 
 module.exports = function(app) {
