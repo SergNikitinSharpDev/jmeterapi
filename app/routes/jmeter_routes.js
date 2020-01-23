@@ -120,7 +120,7 @@ module.exports = function(app) {
 		
 		files.forEach(function (item, index) {
 		  //console.log('iterate',item, index);
-			fs.rename(`${appRoot}/newman/settings/${item}.json.newman`, `${appRoot}/newman/settings/${item}.json`, function(err) {
+			fs.rename(`${appRoot}/newman/settings/${item}.newman`, `${appRoot}/newman/settings/${item}`, function(err) {
 				if ( err ) console.log('ERROR: ' + err);
 			});
 		});
