@@ -3,7 +3,6 @@ const bodyParser     = require('body-parser');
 const app            = express();
 const port = 8001;
 
-app.use(bodyParser.json({limit: '10mb'})) // and add this
 
 //set global app root path
 var path = require('path');
@@ -35,7 +34,8 @@ if (!fs.existsSync(dir)){
     fs.mkdirSync(dir);
 }
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({limit: '1mb'}))
+app.use(bodyParser.urlencoded({ extended: true, limit: '1mb' }));
 
 app.use(express.static('reports'))
 app.use(express.static('newman/reports'))
