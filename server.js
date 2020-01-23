@@ -37,6 +37,7 @@ if (!fs.existsSync(dir)){
 app.use(bodyParser.json({limit: '1mb'}))
 app.use(bodyParser.urlencoded({ extended: true, limit: '1mb' }));
 
+app.use(express.json({ limit: '2MB' }));
 app.use(express.static('reports'))
 app.use(express.static('newman/reports'))
 app.use(express.static('csv'))
